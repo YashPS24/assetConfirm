@@ -1,12 +1,15 @@
-// netlify/functions/save-data.js
+// d:\Yash\Projects\GP\ym-confirmation\netlify\functions\save-data.js
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-// IMPORTANT: Store your MongoDB URI in Netlify environment variables!
-// Go to Site settings > Build & deploy > Environment > Environment variables
-// Add a variable like MONGODB_URI with your connection string.
 const uri = process.env.MONGODB_URI;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+if (!uri) {
+  console.error('Error: MONGODB_URI environment variable is not set.');
+  // Return an error response or throw, depending on how you want to handle this
+}
+
+// It's often better to initialize the client outside the handler for potential reuse
+// across invocations in "warm" functions, but connect/close inside for safety.
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -16,7 +19,6 @@ const client = new MongoClient(uri, {
 });
 
 exports.handler = async function(event, context) {
-  // We only care about POST requests for saving data
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -28,32 +30,34 @@ exports.handler = async function(event, context) {
   try {
     const dataToSave = JSON.parse(event.body);
 
-    // TODO: Add validation for dataToSave here if necessary
+    // Optional: Add data validation here
 
     await client.connect();
-    console.log("Successfully connected to MongoDB!");
+    console.log("Successfully connected to MongoDB Atlas!");
 
-  
-    const database = client.db(); 
-    const collection = database.collection("Confirmation"); /
-    // mongodb+srv://psyasomi:Yash@24.@cluster0.vlei7mv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    // Replace with your actual database and collection names
+    const database = client.db("mongodb+srv://psyasomi:Yash@24.@cluster0.vlei7mv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"); // Or client.db() if db name is in URI
+const collection = database.collection("Confirmation");
 
     const result = await collection.insertOne(dataToSave);
+    console.log("Data inserted with ID:", result.insertedId);
 
     return {
-      statusCode: 201, // 201 Created
+      statusCode: 201,
       body: JSON.stringify({ message: "Data saved successfully!", insertedId: result.insertedId }),
     };
 
   } catch (error) {
-    console.error("Error saving data:", error);
+    console.error("Error in save-data function:", error);
+    // Be careful about exposing raw error messages to the client in production
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Failed to save data", error: error.message }),
+      body: JSON.stringify({ message: "Failed to save data", errorDetails: error.message }),
     };
   } finally {
-    // Ensures that the client will close when you finish/error
-    // For production, explore connection pooling strategies for serverless.
+    // Ensures that the client will close when you finish/error.
+    // Consider connection pooling for high-traffic production apps.
     await client.close();
+    console.log("MongoDB Atlas connection closed.");
   }
 };

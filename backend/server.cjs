@@ -3,10 +3,8 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const cors = require('cors');
 // When server.cjs is run from the project root, .env in the root will be found.
-// If server.cjs is run with `backend` as the CWD (Current Working Directory),
-// and .env is in the project root, you'd need: require('dotenv').config({ path: '../.env' });
-// However, most deployment platforms set environment variables directly,
-// so dotenv might primarily be for local development.
+// If server.cjs is run with `backend` as the CWD, you'd need:
+// require('dotenv').config({ path: '../.env' }); 
 require('dotenv').config(); 
 const AWS = require('aws-sdk');
 
@@ -17,6 +15,7 @@ AWS.config.update({
   region: process.env.AWS_REGION
 });
 const s3 = new AWS.S3();
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -63,24 +62,13 @@ app.post('/api/confirmations', upload.single('image'), async (req, res) => {
     }
 
     if (imageFile) {
+      // Actual image upload logic to a cloud service (like S3, Firebase Storage) would go here.
+      // For example, if using S3:
+      // const s3 = new AWS.S3(...);
+      // const uploadResult = await s3.upload({...}).promise();
+      // imageUrl = uploadResult.Location;
       console.log('Image received:', imageFile.originalname, '(actual upload logic needed)');
-      
-      const s3Params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: `${Date.now()}_${imageFile.originalname.replace(/\s+/g, '_')}`, // Sanitize filename
-        Body: imageFile.buffer,
-        ContentType: imageFile.mimetype,
-        // ACL: 'public-read' // If you want the file to be publicly accessible directly
-      };
-
-      try {
-        const s3UploadResponse = await s3.upload(s3Params).promise();
-        imageUrl = s3UploadResponse.Location; // URL of the uploaded file in S3
-        console.log('Image uploaded to S3:', imageUrl);
-      } catch (s3Error) {
-        console.error('S3 Upload Error:', s3Error);
-        // Decide if you want to proceed without image or return an error
-      }
+      imageUrl = `https://fake-storage.com/images/${Date.now()}_${imageFile.originalname}`; // Placeholder
     }
 
     const newConfirmation = new Confirmation({

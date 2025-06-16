@@ -2,7 +2,7 @@
   {
     "origin": [
       "https://ym-confermation.netlify.app",
-      "http://localhost:5173"
+      "http://0.0.0.0/0"
     ],
     "method": ["GET", "POST", "PUT", "HEAD", "OPTIONS"],
     "responseHeader": [
