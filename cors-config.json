@@ -1,0 +1,20 @@
+[
+  {
+    "origin": [
+      "https://ym-confermation.netlify.app",
+      "http://localhost:5173"
+    ],
+    "method": ["GET", "POST", "PUT", "HEAD", "OPTIONS"],
+    "responseHeader": [
+      "Content-Type",
+      "Authorization",
+      "Origin",
+      "Accept",
+      "X-Requested-With",
+      "X-Goog-Resumable",
+      "X-Upload-Content-Type",
+      "X-Upload-Content-Length"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
